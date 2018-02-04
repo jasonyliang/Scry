@@ -5,9 +5,10 @@ let mouseDown
 let currentColor
 let mode
 let cnv
-let timeSlider, addInfantryModeButton,addCavalryModeButton, selectModeButton, pathModeButton, playModeButton
+let timeSlider, addInfantryModeButton,addCavalryModeButton, selectModeButton, pathModeButton, saveButton, playModeButton
 let epoch
 let lastMouse, lastAngle
+
 
 function setup() {
   cnv = createCanvas(1000,600)
@@ -18,32 +19,15 @@ function setup() {
 
   mouseDown = createVector(-1,0)
   lastMouse = []
-  lastAngle = 0
+  lastAngle = -100
   currentPath = []
   mode = 'addInfantry'
 
-  epoch = [0,1000]
+  epoch = [0,10000]
   timeSlider = createSlider(epoch[0],epoch[1],0,1)
-
-  addModeButton = createButton('Add Infantry')
-  addModeButton.mousePressed(addInfantryMode)
-
-  addModeButton = createButton('Add Cavalry')
-  addModeButton.mousePressed(addCavalryMode)
-
-  selectModeButton = createButton('Select')
-  selectModeButton.mousePressed(selectMode)
-
-
-  pathModeButton = createButton('Path')
-  pathModeButton.mousePressed(pathMode)
-
 
   pathModeButton = createButton('Delete')
   pathModeButton.mousePressed(deleteSelection)
-
-  playModeButton = createButton('Play')
-  playModeButton.mousePressed(playMode)
 
   pathModeButton = createButton('Red')
   pathModeButton.mousePressed(setRed)
@@ -51,14 +35,37 @@ function setup() {
   playModeButton = createButton('Blue')
   playModeButton.mousePressed(setBlue)
 
+  killButton = createButton('Kill')
+  killButton.mousePressed(kill)
+
+  playModeButton = createButton('Play')
+  playModeButton.mousePressed(playMode)
+
+  saveButton = createButton('Save')
+  saveButton.mousePressed(saveBlocks)
+
 }
 
 function setRed() {
   currentColor = color(255,0,0)
 }
 
+function kill() {
+  for(let i = 0;i<blocks.length;i++) {
+    if (blocks[i].isSelected){
+      for(let j = t; j < epoch[1]; j++) {
+        blocks[i].path[j] = createVector(-blocks[i].size,-blocks[i].size)
+      }
+    }
+  }
+}
+
+function saveBlocks() {
+  saveJSON(convertToJSON(blocks), 'save.json', false)
+}
+
 function setBlue() {
-  currentColor = color(0,0,255)
+  currentColor = color(50,50,255)
 }
 
 function playMode() {
@@ -97,6 +104,7 @@ function deleteSelection() {
 }
 
 function draw() {
+
   background(100,200,100)
   for (let i = 0, len = blocks.length; i < len; i++) {
     blocks[i].update()
@@ -129,6 +137,40 @@ function draw() {
     lastMouse.splice(0,1)
   }
 
+  /*
+  if (blocks.length > 0) {
+    c = blocks[blocks.length-1]
+    if (mode == 'addInfantry' && c instanceof Infantry && !mouseIsPressed) {
+      push()
+      translate(mouseX,mouseY)
+      rotate(c.angle)
+      fill(red(currentColor),green(currentColor),blue(currentColor),50)
+      stroke(0)
+      strokeWeight(1)
+      rect(0,0,c.size,c.size/2)
+      line(-c.size/2,-c.size/4,c.size/2,c.size/4)
+      line(-c.size/2,c.size/4,c.size/2,-c.size/4)
+      pop()
+    }
+    if (mode == 'addCavalry' && c instanceof Cavalry && !mouseIsPressed) {
+      push()
+      translate(mouseX,mouseY)
+      rotate(c.angle)
+      fill(red(currentColor),green(currentColor),blue(currentColor),50)
+      stroke(0)
+      strokeWeight(1)
+      rect(0,0,c.size,c.size/2)
+      line(-c.size/2,-c.size/4,c.size/2,c.size/4)
+      pop()
+    }
+  }
+  */
+
+  if (mode == 'pathMode') {
+    path = true
+  }else{
+    path = false
+  }
 }
 
 class Block {
@@ -150,10 +192,10 @@ class Block {
     rectMode(CENTER)
     push()
     translate(this.pos.x,this.pos.y)
-    rotate(this.angle)
+    rotate(this.angles[t])
     fill(this.color)
     if (this.isSelected) {
-      fill(this.color.red()-50,this.color.green()-50,this.color.blue()-50)
+      fill(red(this.color)-50,green(this.color)-50,blue(this.color)-50)
     }
     stroke(0)
     strokeWeight(1)
@@ -218,8 +260,8 @@ function recordDown() {
   if (mode == 'path'){
     selects = blocksSelected()
   }
-  print(1)
   lastMouse = []
+  lastAngle = -100
 }
 
 function makeBlock(type) {
@@ -237,13 +279,23 @@ function makeBlock(type) {
 
     let i
     if (type == 'cavalry') {
-      print('add')
       i = new Cavalry(createVector(mouseDown.x,mouseDown.y),angle,size,currentColor)
     }else{
       i = new Infantry(createVector(mouseDown.x,mouseDown.y),angle,size,currentColor)
     }
 
     append(blocks,i)
+
+  }else if (mag<3 && blocks.length>0){
+    let i
+    let c = blocks[blocks.length-1]
+    if (mode == 'addCavalry' && c instanceof Cavalry) {
+      i = new Cavalry(createVector(mouseDown.x,mouseDown.y),c.angle,c.size,currentColor)
+      append(blocks,i)
+    }else if (mode == 'addInfantry' && c instanceof Infantry){
+      i = new Infantry(createVector(mouseDown.x,mouseDown.y),c.angle,c.size,currentColor)
+      append(blocks,i)
+    }
 
   }
 }
@@ -255,89 +307,63 @@ function recordPath() {
 
     let dMouse = subtract(createVector(mouseX,mouseY),lastMouse[lastMouse.length-1])
 
-    let avgD = dMouse
-    for (let i = 0; i<lastMouse.length-1; i++) {
-      avgD = add(avgD,subtract(lastMouse[i+1],lastMouse[i]))
-    }
-    let mag = magnitude(avgD)
-    let mouseAng
-    if (mag>5) {
-      mouseAng = findAngle(createVector(0,0),avgD) + PI
-    }else{
-      mouseAng = lastAngle
-    }
-
-    for(let i = 0; i < group.length; i++) {
-
-      let relativePos = subtract(blocks[group[i]].path[t],lastMouse[lastMouse.length-1])
-      let relativeAng = findAngle(createVector(mouseX,mouseY),blocks[group[i]].path[t])
-
-      let th = mouseAng - lastAngle
-
-      let disp = magnitude(relativePos)
-
-      let relativeNew = vRotate(relativePos, th)
-
-      if (mag>5) {
-        blocks[group[i]].path[t+1] = add(createVector(mouseX,mouseY),relativeNew)
-        pAngle = blocks[group[i]].angles[t]
-        blocks[group[i]].angles[t+1] = pAngle + th
+    if (keyIsDown(SHIFT)) {
+      if(abs(dMouse.x) > abs(dMouse.y)) {
+        for(let i = 0; i < group.length; i++) {
+          blocks[group[i]].path[t+1] = createVector(blocks[group[i]].path[t].x + dMouse.x,blocks[group[i]].path[t].y)
+          blocks[group[i]].angles[t+1] = blocks[group[i]].angles[t]
+        }
+      }else if (abs(dMouse.y) > abs(dMouse.x)) {
+        for(let i = 0; i < group.length; i++) {
+          blocks[group[i]].path[t+1] = createVector(blocks[group[i]].path[t].x,blocks[group[i]].path[t].y+dMouse.y)
+          blocks[group[i]].angles[t+1] = blocks[group[i]].angles[t]
+        }
       }else{
-        blocks[group[i]].path[t+1] = blocks[group[i]].path[t]
-        blocks[group[i]].angles[t+1] = blocks[group[i]].angles[t]
+        for(let i = 0; i < group.length; i++) {
+          blocks[group[i]].path[t+1] = createVector(blocks[group[i]].path[t].x,blocks[group[i]].path[t].y)
+          blocks[group[i]].angles[t+1] = blocks[group[i]].angles[t]
+        }
+      }
+    }else{
+
+      let avgD = dMouse
+      for (let i = 0; i<lastMouse.length-1; i++) {
+        avgD = add(avgD,subtract(lastMouse[i+1],lastMouse[i]))
+      }
+      let mag = magnitude(avgD)
+      let mouseAng
+      if (mag>5) {
+        mouseAng = findAngle(createVector(0,0),avgD)
+      }else{
+        mouseAng = lastAngle
       }
 
+      if (mouseAng > -100 && lastAngle == -100) {
+        lastAngle = mouseAng
+      }
+
+      for(let i = 0; i < group.length; i++) {
+
+        let relativePos = subtract(blocks[group[i]].path[t],lastMouse[lastMouse.length-1])
+        let relativeAng = findAngle(createVector(mouseX,mouseY),blocks[group[i]].path[t])
+
+        let th = mouseAng - lastAngle
+
+        let disp = magnitude(relativePos)
+
+        let relativeNew = vRotate(relativePos, th)
+
+        if (mag>5) {
+          blocks[group[i]].path[t+1] = add(createVector(mouseX,mouseY),relativeNew)
+          pAngle = blocks[group[i]].angles[t]
+          blocks[group[i]].angles[t+1] = pAngle + th
+        }else{
+          blocks[group[i]].path[t+1] = blocks[group[i]].path[t]
+          blocks[group[i]].angles[t+1] = blocks[group[i]].angles[t]
+        }
+      }
+      lastAngle = mouseAng
     }
-
-
-    push()
-    translate(mouseX,mouseY)
-    strokeWeight(2)
-    line(0,0,50*cos(mouseAng),50*sin(mouseAng))
-    pop()
-
-    lastAngle = mouseAng
-    /*
-    let dAng = cAng - pAng
-
-    push()
-    translate(mouseX,mouseY)
-    strokeWeight(2)
-    line(0,0,avgD.x,avgD.y)
-    stroke(255,0,0)
-    line(0,0,avgD2.x,avgD2.y)
-    pop()
-    //blocks[group[0]].path[t+1] = add(createVector(mouseX,mouseY),relativeNew)
-
-    blocks[group[0]].angles[t+1] = blocks[group[0]].angles[t]
-    */
-    //blocks[group[0]].angles[t+1] = relativePos[0]
-
-    /*
-    cAng = (findAngle(blocks[group[0]].path[t],blocks[group[0]].path[t+1]))%TWO_PI
-    pAng = (blocks[group[0]].angles[t])%TWO_PI
-
-
-    if (cAng == 0) {
-      cAng = pAng
-    }
-
-    if (pAng-cAng>PI){
-      pAng-=TWO_PI
-    }else if (cAng-pAng>PI) {
-      cAng-=TWO_PI
-    }
-    dAng = cAng - pAng
-
-    if (abs(dAng)<PI/30) {
-      blocks[group[0]].angles[t+1] = blocks[group[0]].angles[t] + dAng
-
-    }else{
-
-      blocks[group[0]].angles[t+1] = blocks[group[0]].angles[t] + dAng/abs(dAng)*PI/30
-
-    }
-    */
   }
 }
 
@@ -473,4 +499,17 @@ function blocksSelected() {
     }
   }
   return selected
+}
+
+function convertToJSON(arr) {
+  output = []
+
+  for (let a = 0; a < arr.length; a++) {
+    points = []
+    for (let i = 0; i < arr[a].path.length; i++) {
+      append(points,{x:arr[a].path[i].x,y:arr[a].path[i].y})
+    }
+    append(output,{path:points,angles:arr[a].angles,color:arr[a].color,size:arr[a].size})
+  }
+  return output
 }
