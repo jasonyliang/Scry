@@ -3,11 +3,7 @@
   <head>
     <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
     <style> body {padding: 0; margin: 0;} </style>
-    <script src="p5.min.js"></script>
-    <script src="../addons/p5.dom.min.js"></script>
-    <script src="../addons/p5.sound.min.js"></script>
-    <script src="sketch.js"></script>
-    <script src="myscripteditor.js"></script>
+    
 
 
     <!--Code for myscript editor-->
@@ -18,31 +14,28 @@
     <link rel="stylesheet" href="myscript.min.css">
     <style>
       #editor {
-        height: calc(100vh - 300px);
+        height: calc(600px);
+        width: calc(1000px);
       }
-
+/* 1000 * 600 */
       #container {
-        width: 100px;
-        height: 100px;
+        width: 1000;
+        right: 1000;
+        height: 600;
         position: relative;
       }
-      #navi,
-      #infoi {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 20;
-      left: 0;
-    }
-      #infoi {
-        z-index: 10;
+      #navi {
+        position:absolute;
       }
+      #infoi {
+      position: absolute;
+    }
     </style>
 
 
   </head>
   <body touch-action="none">
-    <div id="container">
+    
 
     <nav>
       <div class="button-div">
@@ -57,10 +50,22 @@
         </button>
       </div>
     </nav>
+
+
+
+    <div id="container">
+    <div id="nav">
+    <script src="p5.min.js"></script>
+    <script src="../addons/p5.dom.min.js"></script>
+    <script src="../addons/p5.sound.min.js"></script>
+    <script src="sketch.js"></script>
+    <script src="myscripteditor.js"></script>
+    </div>
     
     <div id='infoi'>
-    <div id="editor"></div>
-
+    
+    <div id="editor" ></div>
+    
     <script>
         var editorElement = document.getElementById('editor');
         var undoElement = document.getElementById('undo');
@@ -132,7 +137,8 @@
             editorElement.editor.resize();
           })
     </script>
+    
     </div>
-    </div>
+  </div>
   </body>
 </html>
