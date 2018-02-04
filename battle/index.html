@@ -7,8 +7,117 @@
     <script src="../addons/p5.dom.min.js"></script>
     <script src="../addons/p5.sound.min.js"></script>
     <script src="sketch.js"></script>
+    <script src="myscripteditor.js"></script>
+
+
+    <!--Code for myscript editor-->
+    <link rel="stylesheet" href="bower_components/myscript/dist/myscript.min.css"/>
+    <script src="bower_components/myscript/dist/myscript.min.js"></script>
+    <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>  
+    <link rel="stylesheet" href="examples.css">
+    <link rel="stylesheet" href="myscript.min.css">
+    <style>
+      #editor {
+        height: calc(100vh - 52px);
+      }
+    </style>
+
+
   </head>
-  <body>
+  <body touch-action="none">
+    <nav>
+      <div class="button-div">
+        <button id="clear" class="nav-btn btn-fab-mini btn-lightBlue" disabled>
+          <img src="assets/img/clear.svg">
+        </button>
+        <button id="undo" class="nav-btn btn-fab-mini btn-lightBlue" disabled>
+          <img src="assets/img/undo.svg">
+        </button>
+        <button id="redo" class="nav-btn btn-fab-mini btn-lightBlue" disabled>
+          <img src="assets/img/redo.svg">
+        </button>
+      </div>
+    </nav>
+
+    <div id="editor"></div>
+
+    <script>
+        var editorElement = document.getElementById('editor');
+        var undoElement = document.getElementById('undo');
+        var redoElement = document.getElementById('redo');
+        var clearElement = document.getElementById('clear');
+
+        editorElement.addEventListener('changed', function(event) {
+          undoElement.disabled = !event.detail.canUndo;
+          redoElement.disabled = !event.detail.canRedo;
+          clearElement.disabled = !event.detail.canClear;
+        });
+        editorElement.addEventListener('exported', function(event) {
+
+          // DRAWINGS DRAWN UNTIL NOW
+          var recognized_drawings = event.detail.exports.SEGMENTS;
+          // Current Shape Potential Candidates
+          var current_shape_candidates = recognized_drawings[recognized_drawings.length-1];
+          
+          
+          // Best option for current shape - THE IMPORTANT GUY
+          var best_shape_candidate = current_shape_candidates[0];// Zero stands for the first candidate of possible shapes for the given drawing
+          // Record the form of the shape and get the array of lines
+          var form = best_shape_candidate.label; // i.e. "rectangle" , "thrapezoid..."
+          var lines_array = best_shape_candidate.primitives;
+
+          // Do something with the information of the lines that constitute the shape.
+          for (j = 0; j < lines_array.length(); j++) {
+            var current_line = lines_array[j];
+            // current_line.firstPoint -> array of x and y coordinates
+            // current_line.secondPoint -> array of x and y coordinates
+
+            // So here's where you have fun Henry. 
+            
+          }
+
+
+
+
+
+          }
+
+        });
+
+        undoElement.addEventListener('click', function () {
+          editorElement.editor.undo();
+        });
+        redoElement.addEventListener('click', function () {
+          editorElement.editor.redo();
+        });
+        clearElement.addEventListener('click', function () {
+          editorElement.editor.clear();
+        });
+
+
+        MyScript.register(editorElement, {
+          triggers: {
+            exportContent: 'QUIET_PERIOD'
+          },
+          recognitionParams: {
+            type: 'SHAPE',
+            protocol: 'REST',
+            apiVersion: 'V3',
+            server: {
+              scheme: 'https',
+              //host: 'webemoapi.myscript.com',
+              applicationKey: '755434ee-a55a-4a10-9b38-86b75fff7d56',
+              hmacKey: '61710551-40f0-4216-9b44-6bb5605fe010'
+            }
+          }
+        });
+    
+          window.addEventListener('resize', function() {
+            console.log('Resizing the window');
+            editorElement.editor.resize();
+          })
+    </script>
+
     
   </body>
 </html>
