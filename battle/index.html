@@ -57,7 +57,7 @@
           // DRAWINGS DRAWN UNTIL NOW
           var recognized_drawings = event.detail.exports.SEGMENTS;
           // Current Shape Potential Candidates
-          var current_shape_candidates = recognized_drawings[recognized_drawings.length-1];
+          var current_shape_candidates = recognized_drawings[recognized_drawings.length-1].candidates;
           
           
           // Best option for current shape - THE IMPORTANT GUY
@@ -67,10 +67,10 @@
           var lines_array = best_shape_candidate.primitives;
 
           // Do something with the information of the lines that constitute the shape.
-          for (j = 0; j < lines_array.length(); j++) {
+          for (j = 0; j < lines_array.length; j++) {
             var current_line = lines_array[j];
             // current_line.firstPoint -> array of x and y coordinates
-            // current_line.secondPoint -> array of x and y coordinates
+            // current_line.lastPoint -> array of x and y coordinates
 
             // So here's where you have fun Henry. 
 
