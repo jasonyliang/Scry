@@ -9,9 +9,16 @@ let timeSlider, addInfantryModeButton,addCavalryModeButton, selectModeButton, pa
 let epoch
 let lastMouse, lastAngle
 
+var img
+
+function preload() {
+
+  img = loadImage('https://upload.wikimedia.org/wikipedia/commons/b/b4/Map_of_Ancient_Rome_260-269_AD-es.svg')
+}
 
 function setup() {
-  cnv = createCanvas(1000,600)
+
+  cnv = createCanvas(1400,840)
   cnv.mousePressed(recordDown)
 
   blocks = []
@@ -105,7 +112,8 @@ function deleteSelection() {
 
 function draw() {
 
-  background(100,200,100)
+  background(img)
+  image(img,-500,0,2000,1200)
   for (let i = 0, len = blocks.length; i < len; i++) {
     blocks[i].update()
   }
@@ -253,6 +261,41 @@ class Cavalry extends Block {
     line(-this.size/2,-this.size/4,this.size/2,this.size/4)
     pop()
   }
+}
+
+class City {
+  constructor(pos) {
+    this.pos = pos
+    this.color = currentColor
+  }
+
+  update() {
+    push()
+    translate(this.pos.x,this.pos.y)
+    fill(this.color)
+    if (this.isSelected) {
+      fill(red(this.color)-100,green(this.color)-100,blue(this.color)-100)
+    }
+    stroke(0)
+    strokeWeight(1)
+    star(0,0,10,20,5)
+    pop()
+  }
+}
+
+function star(x, y, radius1, radius2, npoints) {
+  var angle = TWO_PI / npoints;
+  var halfAngle = angle/2.0;
+  beginShape();
+  for (var a = 0; a < TWO_PI; a += angle) {
+    var sx = x + cos(a) * radius2;
+    var sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a+halfAngle) * radius1;
+    sy = y + sin(a+halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
 }
 
 function recordDown() {
