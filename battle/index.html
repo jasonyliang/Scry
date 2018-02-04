@@ -2,6 +2,10 @@
 <html>
   <head>
     <meta name="viewport" width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0>
+    <meta name="viewport" content="width=device-width, minimum-scale=1.1, initial-scale=1.1, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+  
     <style> body {padding: 0; margin: 0;} </style>
 
 
@@ -12,6 +16,14 @@
     <script src="https://code.jquery.com/pep/0.4.3/pep.js"></script>
     <link rel="stylesheet" href="examples.css">
     <link rel="stylesheet" href="myscript.min.css">
+    <!-- For myscript text web-->
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="bower_components/myscript-text-web/myscript-text-web.html">
+
+
+
+
+
     <style>
       #editor {
         height: calc(600px);
@@ -27,7 +39,7 @@
 
       position: absolute;
 
-    }
+      }
       #infoi {
         z-index: 10;
       }
@@ -53,6 +65,12 @@
         </button>
       </div> -->
 
+    <myscript-text-web
+      applicationkey='755434ee-a55a-4a10-9b38-86b75fff7d56'
+      hmackey='61710551-40f0-4216-9b44-6bb5605fe010'
+      language='en_US'
+      >
+    </myscript-text-web>
     <div id="container">
     <div id='nav'>
 
@@ -91,7 +109,29 @@
         var undoElement = document.getElementById('undo');
         var redoElement = document.getElementById('redo');
         var clearElement = document.getElementById('clear');
+        // Text code
+        var languageElement = document.getElementById('language');
+        editorElement.addEventListener('loaded', function (event) {
+          /**
+          * Retrieve the list of available recognition languages
+          * @param {Object} The editor recognition parameters
+          */
+          var currentLanguage = event.target.editor.configuration.recognition.v4.lang;
+          var res = MyScript.getAvailableLanguageList();
 
+          if (languageElement.options.length == 0) {
+            Object.keys(res.result).forEach(function (key) {
+              var selected = currentLanguage === key;
+              languageElement.options[languageElement.options.length] = new Option(res.result[key], key, selected, selected);
+            });
+          }
+        });
+        languageElement.addEventListener('change', function (event) {
+          var configuration = editorElement.editor.configuration;
+          // The path to the language depend of the version of API you are using
+          configuration.recognition.v4.lang = event.target.value;
+          editorElement.editor.configuration = configuration;
+        });
 
         editorElement.addEventListener('changed', function(event) {
 
