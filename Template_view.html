@@ -2,32 +2,64 @@
 <html lang=en>
 
     <head>
-        <style>
-                
-                body {
-                    background-color: lightblue;
-                }
-        </style>
-
-        <!-- <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+        <title>Bootstrap Example</title>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
         
-        <script src='https://code.jquery.com/jquery-3.2.1.min.js'></script> -->
+        <style>
+            div.block{
+                width: 25%;
+                height: auto;
+                border: 12px solid darkcyan;
+                background-color: greenyellow;
+                margin: 0 auto;
+                text-align: center;
+                top: auto;
 
-        <div class="container">
-                <h1>Scrying</h1>
+
+            }
+        </style>
+    </head>
+    <body style='background-color:#83A5EA;'>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="index.html">Scrying.com</a>
+            </div>
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Home</a></li>
+                    <li><a href="#">Option 1</a></li>
+                    <li><a href="#">Option 2</a></li>
+                    <li><a href="#">Option 3</a></li>
+                </ul>
+            </div>
+        </nav>
+    <div class='block'>
+        <div>
+            <h1>Scrying</h1>
         </div>
         <div>
-            <p>Are you ready for the game :) </p>
+            <p class="bg-info text-white">Are you ready for the game :) </p>
             <form action="battle/index.html">
-                <input type="submit" value="Start" />
+                <input type="submit" class="btn btn-success" value="Start" />
             </form>
         </div>
 
 
+        <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Region
+                <span class="caret"></span></button>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Europe</a></li>
+                  <li><a href="#">North America</a></li>
+                  <li><a href="#">Asia</a></li>
+                  <li><a href="#">Africa</a></li>
+                  <li><a href="#">South America</a></li>
+                </ul>
         
-        
-    </head>
-
-    <body>
-
+            </div>
+    </div>
     </body>
