@@ -269,6 +269,20 @@
           }
         });
 
+        MyScript.register(editorElement, {
+          recognitionParams: {
+            type: 'TEXT',
+            // protocol: 'REST',
+            // apiVersion: 'V3',
+            server: {
+              scheme: 'https',
+              //host: 'webemoapi.myscript.com',
+              applicationKey: '755434ee-a55a-4a10-9b38-86b75fff7d56',
+              hmacKey: '61710551-40f0-4216-9b44-6bb5605fe010'
+            }
+          }
+        });
+
           window.addEventListener('resize', function() {
             console.log('Resizing the window');
             editorElement.editor.resize();
