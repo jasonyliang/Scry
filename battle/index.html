@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="myscript.min.css">
     <style>
       #editor {
-        height: calc(600px);
-        width:calc(1000px);
+        height: calc(840px);
+        width:calc(1400px);
       }
 
       #container {
@@ -33,7 +33,7 @@
       }
       #button{
         position: absolute;
-        top:700px;
+        top:900px;
       }
     </style>
 
@@ -67,7 +67,7 @@
     <script src="myscripteditor.js"></script>
   </div>
 
-    <button id='button' onclick="myFunction()">Click Me</button>
+    <button id='button' onclick="myFunction()">Record</button>
 
     <script>
       function myFunction() {
@@ -145,7 +145,7 @@
               center = createVector((p1.x+p2.x)/2,(p1.y+p2.y)/2)
 
               for (let i = 0; i< blocks.length; i++) {
-                if (!(blocks[i] instanceof Infantry)) {
+                if (!(blocks[i] instanceof Infantry) && !(blocks[i] instanceof City)) {
                   if (magnitude(subtract(center,blocks[i].path[t]))<20) {
                     if (blocks[i] instanceof Cavalry){
                       append(blocks, new Infantry(createVector(0,0),0,10,color(0,0,0)))
@@ -177,10 +177,29 @@
               let radius = best_shape_candidate.primitives[0].maxRadius
 
               for (let i = 0; i < blocks.length; i++) {
-                if(magnitude(subtract(center,blocks[i].path[t]))<radius) {
-                  blocks[i].isSelected = true
-                }
+                  if (!(blocks[i] instanceof City)) {
+                    blocks[i].isSelected = false
+                    if(magnitude(subtract(center,blocks[i].path[t]))<radius) {
+                      blocks[i].isSelected = true
+                    }
+                  }
+
               }
+            }
+
+            if (form == "polygon" && best_shape_candidate.primitives.length == 5) {
+              let center = createVector(0,0)
+
+              for (let i = 0; i < 5; i++) {
+                center.x += best_shape_candidate.primitives[i].firstPoint.x
+                center.y += best_shape_candidate.primitives[i].firstPoint.y
+                print(center)
+              }
+
+              center.x /= 5
+              center.y /= 5
+
+              append(blocks,new City(createVector(center.x,center.y)))
             }
           }
           editorElement.editor.clear();
